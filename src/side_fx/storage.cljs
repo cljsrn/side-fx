@@ -21,13 +21,18 @@
            on-failure [::no-on-failure]}}]
   (.getItem async-storage (pr-str key)
     (fn [error result]
-      (if-not error
+      (cond
+        error
+        (dispatch (conj on-failure {::type :fault ::error error}))
+
+        (nil? result)
+        (dispatch (conj on-failure {::type :unavailable}))
+
+        (string? result)
         (try
-          (let [data (read-string result)]
-            (dispatch (conj on-success data)))
+          (dispatch (conj on-success (read-string result)))
           (catch :default e
-            (dispatch (conj on-failure e))))
-        (dispatch (conj on-failure error))))))
+            (dispatch (conj on-failure {::type :fault ::error e}))))))))
 
 (defn remove-item
   [{:keys [key on-success on-failure]
