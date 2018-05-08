@@ -1,6 +1,5 @@
 (ns side-fx.fetch
   (:require
-   [clojure.spec.alpha :as s]
    [clojure.string :as string]
    [re-frame.core :refer [reg-fx dispatch]]))
 
