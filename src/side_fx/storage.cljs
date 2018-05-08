@@ -6,10 +6,10 @@
 (def ^:private async-storage (.-AsyncStorage (js/require "react-native")))
 
 (defn set-item
-  [{:keys [key data on-success on-failure]
+  [{:keys [key value on-success on-failure]
     :or   {on-success [::no-on-success]
            on-failure [::no-on-failure]}}]
-  (.setItem async-storage (pr-str key) (pr-str data)
+  (.setItem async-storage (pr-str key) (pr-str value)
     (fn [error]
       (if-not error
         (dispatch on-success)
