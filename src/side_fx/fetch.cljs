@@ -6,8 +6,8 @@
 
 (defn fetch-effect
   [{:keys [method uri headers body on-success on-failure]
-    :or   {on-success [:http-no-on-success]
-           on-failure [:http-no-on-failure]}}]
+    :or   {on-success [::no-on-success]
+           on-failure [::no-on-failure]}}]
   (let [input (cond-> {:method (-> method name string/upper-case)}
                 headers (assoc :headers headers)
                 body (assoc :body body))]
