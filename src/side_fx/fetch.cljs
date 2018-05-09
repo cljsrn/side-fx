@@ -41,24 +41,39 @@
                                    {:cause    e
                                     :response text}))))))
 
+(def default-response-format {::type :text})
+
+(defn- form-method
+  [{::keys [method]}]
+  (-> method name string/upper-case))
+
+(defn- form-headers
+  [{::keys [headers response-format]
+    :or    {response-format default-response-format}}]
+  (merge {:Accept (accept-header response-format)}
+    headers))
+
+(defn- form-input
+  [{::keys [body]
+    :as    request}]
+  (clj->js (cond-> {:method  (form-method request)
+                    :headers (form-headers request)}
+             body (assoc :body body))))
+
 (defn fetch-effect
-  [{::keys [method uri headers body response-format on-success on-failure]
-    :or    {response-format {::type :text}
+  [{::keys [uri response-format on-success on-failure]
+    :or    {response-format default-response-format
             on-success      [::no-on-success]
-            on-failure      [::no-on-failure]}}]
-  (let [input (cond-> {:method  (-> method name string/upper-case)
-                       :headers (merge {:Accept (accept-header response-format)}
-                                  headers)}
-                body (assoc :body body))]
-    (prn input)
-    (-> (js/fetch uri (clj->js input))
-      (.then #(if (.-ok %)
-                (.text %)
-                (throw (ex-info "Failed response"
-                         {:status      (.-status %)
-                          :status-text (.-statusText %)}))))
-      (.then (fn [text]
-               (process-response response-format text on-success on-failure)))
-      (.catch #(dispatch (conj on-failure %))))))
+            on-failure      [::no-on-failure]}
+    :as    request}]
+  (-> (js/fetch uri (form-input request))
+    (.then #(if (.-ok %)
+              (.text %)
+              (throw (ex-info "Failed response"
+                       {:status      (.-status %)
+                        :status-text (.-statusText %)}))))
+    (.then (fn [text]
+             (process-response response-format text on-success on-failure)))
+    (.catch #(dispatch (conj on-failure %)))))
 
 (reg-fx ::fetch fetch-effect)
