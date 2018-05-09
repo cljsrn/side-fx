@@ -69,11 +69,12 @@
   (-> (js/fetch uri (form-input request))
     (.then #(if (.-ok %)
               (.text %)
-              (throw (ex-info "Failed response"
-                       {:status      (.-status %)
-                        :status-text (.-statusText %)}))))
+              (throw {::status      (.-status %)
+                      ::status-text (.-statusText %)})))
     (.then (fn [text]
              (process-response response-format text on-success on-failure)))
-    (.catch #(dispatch (conj on-failure %)))))
+    (.catch #(dispatch (conj on-failure (if (map? %)
+                                          %
+                                          {::error %}))))))
 
 (reg-fx ::fetch fetch-effect)
