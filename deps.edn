@@ -1,3 +1,5 @@
 {:paths ["src"]
  :deps {org.clojure/clojurescript {:mvn/version "1.10.238"}
-        re-frame {:mvn/version "0.10.5"}}}
+        re-frame {:mvn/version "0.10.5"}}
+ :aliases {:test {:extra-paths ["test"]
+                  :main-opts ["-m" "cljs.main" "-re" "node" "-m" "side-fx.test-runner"]}}}
