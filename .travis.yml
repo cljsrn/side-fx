@@ -9,4 +9,4 @@ install:
 
 script:
   - if [[ $CANARY_CLOJURESCRIPT_REV && ${CANARY_CLOJURESCRIPT_REV-x} ]]; then DEPS="{:deps {org.clojure/clojurescript {:git/url \"https://github.com/clojure/clojurescript\" :sha \"${CANARY_CLOJURESCRIPT_REV}\"}}}"; fi
-  - clj -Sdeps "${DEPS:-{}}" -A:test
+  - clojure -Sdeps "${DEPS:-{}}" -A:test
